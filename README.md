@@ -6,7 +6,7 @@
 ## 準備
 [Spotify for Developers](https://developer.spotify.com/) のAPIを使用しています．
 
-client_config.pyファイルを作成し，以下のパラメータを記述する．
+conf/client.pyファイルを作成し，以下のパラメータを記述する．
 
 ```client_config.py
 client_id = '<YOUR CLIENT ID>'
