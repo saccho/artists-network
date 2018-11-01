@@ -110,7 +110,8 @@ class ArtistsNetwork():
         node_size = [60 * self.artist_popularity]
         for popularity in self.related_artist_popularities:
             node_size.append(60 * popularity)
-        nx.draw_networkx_nodes(G, pos, node_color=node_color, cmap=node_color_map, node_size=node_size, vmin=0, vmax=self.max_value)
+        nodes = nx.draw_networkx_nodes(G, pos, node_color=node_color, cmap=node_color_map, node_size=node_size, vmin=0, vmax=self.max_value)
+        nodes.set_edgecolor('#f5f5f5')
         nx.draw_networkx_labels(G, pos, font_size=7)
         nx.draw_networkx_edges(G, pos, alpha=0.5)
         plt.axis('off')
