@@ -116,7 +116,7 @@ class ArtistsNetwork():
         plt.axis('off')
         sm = plt.cm.ScalarMappable(cmap=node_color_map)
         sm._A = []
-        plt.colorbar(sm)
+        plt.colorbar(sm, ticks=[])
         plt.show()
     
     def main(self):
