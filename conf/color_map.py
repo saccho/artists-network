@@ -1,11 +1,10 @@
-import numpy as np
-import matplotlib.colors as clr
+from numpy import ceil, max
+from matplotlib.colors import LinearSegmentedColormap
 
 colors = ['white', 'darkblue', 'skyblue', 'limegreen', 'yellow', 'orange', 'red']
 values = range(len(colors))
-
-vmax = np.ceil(np.max(values))
+vmax = ceil(max(values))
 color_list = []
 for value, color in zip(values, colors):
     color_list.append((value/vmax, color))
-node_color_map = clr.LinearSegmentedColormap.from_list('custom_cmap', color_list)
+node_cmap = LinearSegmentedColormap.from_list('node_cmap', color_list)

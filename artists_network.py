@@ -1,17 +1,16 @@
 import sys
-import time
 from copy import deepcopy
 from conf import client
-from conf.color_map import node_color_map
-import spotipy
+from conf.color_map import node_cmap
+from spotipy import Spotify
 from spotipy.oauth2 import SpotifyClientCredentials
 import matplotlib.pyplot as plt
 import networkx as nx
 
 client_id = client.client_id
 client_secret = client.client_secret
-client_credentials_manager = spotipy.oauth2.SpotifyClientCredentials(client_id, client_secret)
-spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
+client_credentials_manager = SpotifyClientCredentials(client_id, client_secret)
+spotify = Spotify(client_credentials_manager=client_credentials_manager)
 
 class ArtistsNetwork():
     def __init__(self, artist_name):
@@ -110,12 +109,12 @@ class ArtistsNetwork():
         node_size = [60 * self.artist_popularity]
         for popularity in self.related_artist_popularities:
             node_size.append(60 * popularity)
-        nodes = nx.draw_networkx_nodes(G, pos, node_color=node_color, cmap=node_color_map, node_size=node_size, vmin=0, vmax=self.max_value)
+        nodes = nx.draw_networkx_nodes(G, pos, node_color=node_color, cmap=node_cmap, node_size=node_size, vmin=0, vmax=self.max_value)
         nodes.set_edgecolor('#f5f5f5')
         nx.draw_networkx_labels(G, pos, font_size=7)
         nx.draw_networkx_edges(G, pos, alpha=0.5)
         plt.axis('off')
-        sm = plt.cm.ScalarMappable(cmap=node_color_map)
+        sm = plt.cm.ScalarMappable(cmap=node_cmap)
         sm._A = []
         plt.colorbar(sm, ticks=[])
         plt.show()
@@ -127,5 +126,5 @@ class ArtistsNetwork():
 
 if __name__ == "__main__":
     reference_artist_name = input('Artist Name: ')
-    aw = ArtistsNetwork(reference_artist_name)
-    aw.main()
+    an = ArtistsNetwork(reference_artist_name)
+    an.main()
