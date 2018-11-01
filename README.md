@@ -8,7 +8,7 @@ Web公開に向けて開発中
 ## 準備
 [Spotify for Developers](https://developer.spotify.com/) のAPIを使用しています．
 
-conf/client.pyファイルを作成し，以下のパラメータを記述する．
+conf/client.pyファイルを作成し，以下のパラメータを記述する．
 
 ```client.py
 client_id = '<YOUR CLIENT ID>'
