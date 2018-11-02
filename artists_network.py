@@ -136,7 +136,7 @@ class ArtistsNetwork():
                     genre_value = artist_genres.count(genre) * value
                     count_genres[genre] = artist_genres.count(genre)
                     genre_values.append(genre_value)
-            return sum(genre_values) / sum(count_genres.values())
+            return round(sum(genre_values) / sum(count_genres.values()), 2)
 
     def plot_network(self):
         artists = [[(self.artist_name, related_artist_name) for related_artist_name in self.related_artist_names]]
@@ -163,12 +163,14 @@ class ArtistsNetwork():
         artists_dict = {
             'source': {
                 'name': self.artist_name,
+                'popularity': self.artist_popularity,
                 'genre': self.artist_genres,
                 'id': self.artist_id,
                 'image': self.artist_image
             },
             'related': {
                 'names': self.related_artist_names,
+                'popularities': self.related_artist_popularities,
                 'genres': self.related_artist_genres,
                 'ids': self.related_artist_ids,
                 'images': self.related_artist_images
