@@ -6,6 +6,7 @@ from conf import client
 from conf.color_map import node_cmap
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyClientCredentials
+from spotipy.client import SpotifyException
 import matplotlib.pyplot as plt
 import networkx as nx
 
@@ -17,7 +18,22 @@ spotify = Spotify(client_credentials_manager=client_credentials_manager)
 current_dir = os.path.dirname(__file__)
 
 class ArtistsNetwork():
-    def __init__(self, artist_name):
+    def __init__(self, artist_name=None, artist_id=None):
+        if artist_name == None and artist_id == None:
+            sys.exit('Argument artist_name or artist_id is required.')
+        elif artist_id != None:
+            self.artist_name = ''
+            self.artist_id = artist_id
+        else:
+            self.artist_name = artist_name
+            self.artist_id = ''
+            
+        self.related_artist_names = []
+        self.related_artist_ids = []
+        self.related_artist_popularities = []
+        self.related_artist_genres = []
+        self.related_artist_images = []
+
         self.genres = {}
         genre_list = ['metal', 'hard', 'progressive', 'rock', 
                       'indie', 'pop', 'anime', 'idol', 'denpa', 
@@ -29,15 +45,10 @@ class ArtistsNetwork():
         value_list = [round(self.max_value - (i * step), 2) for i in range(len(genre_list))]
         for genre, value in zip(genre_list, value_list):
             self.genres[genre] = value
-        self.artist_name = artist_name
-        self.related_artist_names = []
-        self.related_artist_ids = []
-        self.related_artist_popularities = []
-        self.related_artist_genres = []
-        self.related_artist_images = []
+
         self.G = nx.Graph()
         
-    def search_artist(self):
+    def search_artist_from_name(self):
         try:
             for market in ['US', 'JP']:
                 artist_search_results = spotify.search(q=self.artist_name, market=market, type='artist')
@@ -81,6 +92,21 @@ class ArtistsNetwork():
         except IndexError:
             sys.exit('Input the correct artist name.')
 
+    def search_artist_from_id(self):
+        try:
+            artist_search_results = spotify.artist(self.artist_id)
+        except SpotifyException:
+            sys.exit('Artist not found')
+        self.artist_name = artist_search_results['name']
+        self.artist_id = artist_search_results['id']
+        self.artist_popularity = artist_search_results['popularity']
+        self.artist_genre = artist_search_results['genres']
+        self.artist_genres = self.genres_to_value(self.artist_genre)
+        try:
+            self.artist_image = artist_search_results['images'][1]['url']
+        except IndexError:
+            self.artist_image = ''
+
     def search_related_artists(self):
         related_artists = spotify.artist_related_artists(self.artist_id)
         for artist in related_artists['artists']:
@@ -90,7 +116,7 @@ class ArtistsNetwork():
             related_artist_genre = artist['genres']
             try:
                 related_artist_image = artist['images'][1]['url']
-            except  IndexError:
+            except IndexError:
                 related_artist_image = ''
             self.related_artist_names.append(related_artist_name)
             self.related_artist_ids.append(related_artist_id)
@@ -157,12 +183,21 @@ class ArtistsNetwork():
             json.dump(node_link_data, f, ensure_ascii=False, indent=2)
 
     def main(self):
-        self.search_artist()
+        if len(self.artist_id) != 0:
+            self.search_artist_from_id()
+        elif len(self.artist_name) != 0:
+            self.search_artist_from_name()
+        else:
+            sys.exit('Input at least one letter')
         self.search_related_artists()
         self.plot_network()
         self.json_write()
 
 if __name__ == "__main__":
-    source_artist_name = input('Artist Name: ')
-    an = ArtistsNetwork(source_artist_name)
+    source_artist_name = 'Sheena Ringo'
+    source_artist_id = ''   # Sheena Ringo's ID: 2XjqKvB2Xz9IdyjWPIHaXi
+    if len(source_artist_id) != 0:
+        an = ArtistsNetwork(artist_id=source_artist_id)
+    else:
+        an = ArtistsNetwork(artist_name=source_artist_name)
     an.main()
