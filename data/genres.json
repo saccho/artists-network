@@ -1,0 +1,19 @@
+{
+  "metal": 100.0,
+  "hard": 95.0,
+  "progressive": 90.0,
+  "rock": 85.0,
+  "indie": 80.0,
+  "pop": 75.0,
+  "anime": 70.0,
+  "idol": 65.0,
+  "denpa": 60.0,
+  "dance": 55.0,
+  "r&b": 50.0,
+  "reggae": 45.0,
+  "funk": 40.0,
+  "shibuya": 35.0,
+  "fusion": 30.0,
+  "city": 25.0,
+  "jazz": 20.0
+}

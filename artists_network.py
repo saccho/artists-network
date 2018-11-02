@@ -1,4 +1,6 @@
+import os
 import sys
+import json
 from copy import deepcopy
 from conf import client
 from conf.color_map import node_cmap
@@ -11,6 +13,8 @@ client_id = client.client_id
 client_secret = client.client_secret
 client_credentials_manager = SpotifyClientCredentials(client_id, client_secret)
 spotify = Spotify(client_credentials_manager=client_credentials_manager)
+
+current_dir = os.path.dirname(__file__)
 
 class ArtistsNetwork():
     def __init__(self, artist_name):
@@ -30,6 +34,8 @@ class ArtistsNetwork():
         self.related_artist_ids = []
         self.related_artist_popularities = []
         self.related_artist_genres = []
+        self.related_artist_images = []
+        self.G = nx.Graph()
         
     def search_artist(self):
         try:
@@ -56,7 +62,7 @@ class ArtistsNetwork():
             for i, artist_search_result in enumerate(artist_search_results['artists']['items']):
                 try:
                     print("[{}] {} - popularity: {}, ImageURL: {}".format(i, artist_search_result['name'],
-                        artist_search_result['popularity'], artist_search_result['images'][0]['url']))
+                        artist_search_result['popularity'], artist_search_result['images'][1]['url']))
                 except IndexError:
                     print("[{}] {} - popularity: {}".format(i, artist_search_result['name'],
                         artist_search_result['popularity']))
@@ -68,6 +74,10 @@ class ArtistsNetwork():
             self.artist_popularity = artist_search_results['artists']['items'][artist_index]['popularity']
             self.artist_genre = artist_search_results['artists']['items'][artist_index]['genres']
             self.artist_genres = self.genres_to_value(self.artist_genre)
+            try:
+                self.artist_image = artist_search_results['artists']['items'][artist_index]['images'][1]['url']
+            except IndexError:
+                self.artist_image = ''
         except IndexError:
             sys.exit('Input the correct artist name.')
 
@@ -78,10 +88,15 @@ class ArtistsNetwork():
             related_artist_id = artist['id']
             related_artist_popularity = artist['popularity']
             related_artist_genre = artist['genres']
+            try:
+                related_artist_image = artist['images'][1]['url']
+            except  IndexError:
+                related_artist_image = ''
             self.related_artist_names.append(related_artist_name)
             self.related_artist_ids.append(related_artist_id)
             self.related_artist_popularities.append(related_artist_popularity)
             self.related_artist_genres.append(self.genres_to_value(related_artist_genre))
+            self.related_artist_images.append(related_artist_image)
 
     def genres_to_value(self, artist_genres):
         if len(artist_genres) == 0:
@@ -102,29 +117,52 @@ class ArtistsNetwork():
         node_color = deepcopy(self.related_artist_genres)
         node_color.insert(0, self.artist_genres)
 
-        G = nx.Graph()
-        [G.add_edges_from(artist) for artist in artists]
+        [self.G.add_edges_from(artist) for artist in artists]
         plt.figure(figsize=(10, 7))
-        pos = nx.spring_layout(G)
+        pos = nx.spring_layout(self.G)
         node_size = [60 * self.artist_popularity]
         for popularity in self.related_artist_popularities:
             node_size.append(60 * popularity)
-        nodes = nx.draw_networkx_nodes(G, pos, node_color=node_color, cmap=node_cmap, node_size=node_size, vmin=0, vmax=self.max_value)
+        nodes = nx.draw_networkx_nodes(self.G, pos, node_color=node_color, cmap=node_cmap, node_size=node_size, vmin=0, vmax=self.max_value)
         nodes.set_edgecolor('#f5f5f5')
-        nx.draw_networkx_labels(G, pos, font_size=7)
-        nx.draw_networkx_edges(G, pos, alpha=0.5)
+        nx.draw_networkx_labels(self.G, pos, font_size=7)
+        nx.draw_networkx_edges(self.G, pos, alpha=0.5)
         plt.axis('off')
         sm = plt.cm.ScalarMappable(cmap=node_cmap)
         sm._A = []
         plt.colorbar(sm, ticks=[])
         plt.show()
-    
+
+    def json_write(self):
+        artists_dict = {
+            'source': {
+                'name': self.artist_name,
+                'genre': self.artist_genres,
+                'id': self.artist_id,
+                'image': self.artist_image
+            },
+            'related': {
+                'names': self.related_artist_names,
+                'genres': self.related_artist_genres,
+                'ids': self.related_artist_ids,
+                'images': self.related_artist_images
+            }
+        }
+        node_link_data = nx.readwrite.json_graph.node_link_data(self.G, {'name': 'name', 'target': 'related'})
+        with open(os.path.join(current_dir, 'data/genres.json'), 'w') as f:
+            json.dump(self.genres, f, ensure_ascii=False, indent=2)
+        with open(os.path.join(current_dir, 'data/artists.json'), 'w') as f:
+            json.dump(artists_dict, f, ensure_ascii=False, indent=2)
+        with open(os.path.join(current_dir, 'data/node_link_data.json'), 'w') as f:
+            json.dump(node_link_data, f, ensure_ascii=False, indent=2)
+
     def main(self):
         self.search_artist()
         self.search_related_artists()
         self.plot_network()
+        self.json_write()
 
 if __name__ == "__main__":
-    reference_artist_name = input('Artist Name: ')
-    an = ArtistsNetwork(reference_artist_name)
+    source_artist_name = input('Artist Name: ')
+    an = ArtistsNetwork(source_artist_name)
     an.main()

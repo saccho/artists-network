@@ -1,0 +1,152 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {
+      "name": "Sheena Ringo"
+    },
+    {
+      "name": "Tokyo Incidents"
+    },
+    {
+      "name": "Mika Nakashima"
+    },
+    {
+      "name": "Chihiro Onitsuka"
+    },
+    {
+      "name": "Utada Hikaru"
+    },
+    {
+      "name": "EGO-WRAPPIN’"
+    },
+    {
+      "name": "Elephant Kashimashi"
+    },
+    {
+      "name": "Supercar"
+    },
+    {
+      "name": "Chatmonchy"
+    },
+    {
+      "name": "DREAMS COME TRUE"
+    },
+    {
+      "name": "BONNIE PINK"
+    },
+    {
+      "name": "MISIA"
+    },
+    {
+      "name": "LOVE PSYCHEDELICO"
+    },
+    {
+      "name": "Ling tosite sigure"
+    },
+    {
+      "name": "Anna Tsuchiya"
+    },
+    {
+      "name": "JUDY AND MARY"
+    },
+    {
+      "name": "THE YELLOW MONKEY"
+    },
+    {
+      "name": "UA"
+    },
+    {
+      "name": "GReeeeN"
+    },
+    {
+      "name": "Galileo Galilei"
+    },
+    {
+      "name": "Rie Tomosaka"
+    }
+  ],
+  "links": [
+    {
+      "source": "Sheena Ringo",
+      "related": "Tokyo Incidents"
+    },
+    {
+      "source": "Sheena Ringo",
+      "related": "Mika Nakashima"
+    },
+    {
+      "source": "Sheena Ringo",
+      "related": "Chihiro Onitsuka"
+    },
+    {
+      "source": "Sheena Ringo",
+      "related": "Utada Hikaru"
+    },
+    {
+      "source": "Sheena Ringo",
+      "related": "EGO-WRAPPIN’"
+    },
+    {
+      "source": "Sheena Ringo",
+      "related": "Elephant Kashimashi"
+    },
+    {
+      "source": "Sheena Ringo",
+      "related": "Supercar"
+    },
+    {
+      "source": "Sheena Ringo",
+      "related": "Chatmonchy"
+    },
+    {
+      "source": "Sheena Ringo",
+      "related": "DREAMS COME TRUE"
+    },
+    {
+      "source": "Sheena Ringo",
+      "related": "BONNIE PINK"
+    },
+    {
+      "source": "Sheena Ringo",
+      "related": "MISIA"
+    },
+    {
+      "source": "Sheena Ringo",
+      "related": "LOVE PSYCHEDELICO"
+    },
+    {
+      "source": "Sheena Ringo",
+      "related": "Ling tosite sigure"
+    },
+    {
+      "source": "Sheena Ringo",
+      "related": "Anna Tsuchiya"
+    },
+    {
+      "source": "Sheena Ringo",
+      "related": "JUDY AND MARY"
+    },
+    {
+      "source": "Sheena Ringo",
+      "related": "THE YELLOW MONKEY"
+    },
+    {
+      "source": "Sheena Ringo",
+      "related": "UA"
+    },
+    {
+      "source": "Sheena Ringo",
+      "related": "GReeeeN"
+    },
+    {
+      "source": "Sheena Ringo",
+      "related": "Galileo Galilei"
+    },
+    {
+      "source": "Sheena Ringo",
+      "related": "Rie Tomosaka"
+    }
+  ]
+}
