@@ -3,9 +3,9 @@
 
 任意のアーティストから，関連するアーティストがたくさん表示されます．
 
-![結果](https://github.com/saccho/artists-network/blob/feature/web/images/example_2.png)
+![結果](https://github.com/saccho/artists-network/blob/feature/web/app/static/img/example_2.png)
 
-Web公開に向けて開発中
+Web公開に向けて開発中…
 
 ## 準備
 [Spotify for Developers](https://developer.spotify.com/) のAPIを使用しています．

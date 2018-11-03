@@ -135,4 +135,4 @@ pip-selfcheck.json
 
 # End of https://www.gitignore.io/api/python
 
-conf/client.py
+client_config.py
