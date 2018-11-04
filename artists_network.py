@@ -1,13 +1,14 @@
 import sys
 import json
+import settings
 from copy import deepcopy
-import client_config
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyClientCredentials
-from spotipy.client import SpotifyException
 
-client_id = client_config.client_id
-client_secret = client_config.client_secret
+client_id = settings.client_id
+client_secret = settings.client_secret
+
+print(client_id, client_secret)
 client_credentials_manager = SpotifyClientCredentials(client_id, client_secret)
 spotify = Spotify(client_credentials_manager=client_credentials_manager)
 
@@ -15,9 +16,9 @@ class ArtistsNetwork():
     def __init__(self):
         self.genres = {}
         genre_list = ['metal', 'hard', 'progressive', 'rock', 
-                      'indie', 'pop', 'anime', 'idol', 'denpa', 
-                      'dance', 'r&b', 'reggae', 'funk', 'shibuya', 
-                      'fusion', 'city', 'jazz']
+                      'indie', 'pop', 'anime', 'idol', 'denpa', 'dance', 
+                      'funk', 'hawaiian', 'jawaiian', 'shibuya', 'reggae', 
+                      'r&b', 'fusion', 'city', 'jazz']
         self.max_value = 240
         self.min_value = 0.1
         step = (self.max_value - self.min_value) / (len(genre_list) - 1)
@@ -104,10 +105,13 @@ class ArtistsNetwork():
                     genre_value = artist_genres.count(genre) * value
                     count_genres[genre] = artist_genres.count(genre)
                     genre_values.append(genre_value)
-            return round(sum(genre_values) / sum(count_genres.values()), 2)
+            try: 
+                return round(sum(genre_values) / sum(count_genres.values()), 2)
+            except ZeroDivisionError:
+                return 0
 
     def get_genres(self):
-        return json.dumps(self.genres, ensure_ascii=False, indent=2)
+        return self.genres
 
     def get_artists(self, source_artist_name):
         '''
@@ -115,7 +119,7 @@ class ArtistsNetwork():
             source_artist_name: string
         '''
         artists = self._search_artist_from_name(source_artist_name)
-        return json.dumps(artists, ensure_ascii=False, indent=2)
+        return artists
 
     def get_related_artists(self, source_artist_id):
         '''
@@ -123,5 +127,5 @@ class ArtistsNetwork():
             source_artist_id: string
         '''
         artists = self._search_related_artists(source_artist_id)
-        return json.dumps(artists, ensure_ascii=False, indent=2)
+        return artists
 
