@@ -1,99 +1,131 @@
 import sys
-import time
-import client_config
-import spotipy
+import json
+import settings
+from copy import deepcopy
+from spotipy import Spotify
 from spotipy.oauth2 import SpotifyClientCredentials
-import networkx as nx
-import matplotlib.pyplot as plt
-import matplotlib.font_manager as fm
-from community import community_louvain
-import collections
-import itertools
 
-client_id = client_config.client_id
-client_secret = client_config.client_secret
-client_credentials_manager = spotipy.oauth2.SpotifyClientCredentials(client_id, client_secret)
-spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
+client_id = settings.client_id
+client_secret = settings.client_secret
 
-def search_artist(artist_name):
-    try: 
+print(client_id, client_secret)
+client_credentials_manager = SpotifyClientCredentials(client_id, client_secret)
+spotify = Spotify(client_credentials_manager=client_credentials_manager)
+
+class ArtistsNetwork():
+    def __init__(self):
+        self.genres = {}
+        genre_list = ['metal', 'hard', 'progressive', 'rock', 
+                      'indie', 'pop', 'anime', 'idol', 'denpa', 'dance', 
+                      'funk', 'hawaiian', 'jawaiian', 'shibuya', 'reggae', 
+                      'r&b', 'fusion', 'city', 'jazz']
+        self.max_value = 240
+        self.min_value = 0.1
+        step = (self.max_value - self.min_value) / (len(genre_list) - 1)
+        value_list = [round(self.min_value + (i * step), 2) for i in range(len(genre_list))]
+        for genre, value in zip(genre_list, value_list):
+            self.genres[genre] = value
+
+    def _search_artist_from_name(self, source_artist_name):
+        artists = {
+            'err_msg': '',
+            'items': []
+        }
         for market in ['US', 'JP']:
-            artist_search_results = spotify.search(q=artist_name, market=market, type='artist')
+            artist_search_results = spotify.search(q=source_artist_name, market=market, type='artist')
             if len(artist_search_results['artists']['items']) != 0:
-                err_msg = ''
                 break
             else:
-                err_msg = 'Artist not found'
-        if len(err_msg) != 0:
-            raise ValueError(err_msg)
+                artists['err_msg'] = 'Artist not found'
+        if len(artists['err_msg']) != 0:
+            return artists
         else:
             pass
-    except ValueError as err:
-        sys.exit(err)
 
-    if len(artist_search_results['artists']['items']) == 1:
-        artist_index = 0
-    else:
-        print('-'*50)
-        print('Input the index of "{}".'.format(artist_name))
-        print('-'*50)
-        for i, artist_search_result in enumerate(artist_search_results['artists']['items']):
+        artist = {}
+        for artist_search_result in artist_search_results['artists']['items']:
+            artist['name'] = artist_search_result['name']
+            artist['id'] = artist_search_result['id']
             try:
-                print("[{}] {} - popularity: {}, ImageURL: {}".format(i, artist_search_result['name'],
-                    artist_search_result['popularity'], artist_search_result['images'][0]['url']))
+                artist['image'] = artist_search_result['images'][1]['url']
             except IndexError:
-                print("[{}] {} - popularity: {}".format(i, artist_search_result['name'],
-                    artist_search_result['popularity']))
-        print('-'*50)
-        artist_index = int(input('Artist Index: '))
-    try:
-        artist_name = artist_search_results['artists']['items'][artist_index]['name']
-        artist_id = artist_search_results['artists']['items'][artist_index]['id']
-    except IndexError:
-        sys.exit('Input the correct artist name.')
-    return artist_name, artist_id
+                artist['image'] = ''
+            artists['items'].append(deepcopy(artist))
+        return artists
 
-def search_related_artists(artist_id):
-    related_artist_names = []
-    related_artist_popularities = []
-    related_artist_ids = []
-    related_artist_genres = []
+    def _search_artist_from_id(self, artist_id):
+        artist_search_results = spotify.artist(artist_id)
+        self.artist_name = artist_search_results['name']
+        self.artist_popularity = artist_search_results['popularity']
+        self.artist_genre = artist_search_results['genres']
+        self.artist_genres = self._genres_to_value(self.artist_genre)
+        self.artist_id = artist_search_results['id']
+        try:
+            self.artist_image = artist_search_results['images'][1]['url']
+        except IndexError:
+            self.artist_image = ''
 
-    related_artists = spotify.artist_related_artists(artist_id)
-    for artist in related_artists['artists'][:10]:
-        name = artist['name']
-        popularity = artist['popularity']
-        unique_id = artist['id']
-        genres = artist['genres']
-        related_artist_names.append(name)
-        related_artist_popularities.append(popularity)
-        related_artist_ids.append(unique_id)
-        related_artist_genres.append(genres)
-    return related_artist_names, related_artist_ids
+    def _search_related_artists(self, artist_id):
+        self._search_artist_from_id(artist_id)
+        related_artists = {
+            'source': {
+                'name': self.artist_name,
+                'popularity': self.artist_popularity,
+                'genre': self.artist_genres,
+                'id': self.artist_id,
+                'image': self.artist_image
+            },
+            'related': []
+        }
 
-def plot_network(artists):
-    G = nx.Graph()
-    [G.add_edges_from(artist) for artist in artists]
-    plt.figure(figsize=(10, 7))
-    pos = nx.spring_layout(G)
-    partition = community_louvain.best_partition(G)
-    betcent = nx.communicability_betweenness_centrality(G)
-    node_size = [10000 * size for size in list(betcent.values())]
-    nx.draw_networkx_nodes(G, pos, node_color=[partition[node] for node in G.nodes()], alpha=0.9, node_size=node_size)
-    nx.draw_networkx_labels(G, pos, font_size=7)
-    nx.draw_networkx_edges(G, pos, alpha=0.5)
-    plt.axis('off')
-    plt.show()
+        related_artist_search_results = spotify.artist_related_artists(artist_id)
 
-if __name__ == "__main__":
-    reference_artist_name = input('Artist Name: ')
-    reference_artist_name, reference_artist_id = search_artist(reference_artist_name)
-    iter_names, iter_ids = search_related_artists(reference_artist_id)
-    artists = [[(reference_artist_name, related_artist_name) for related_artist_name in iter_names]]
-    for reference_artist_name, reference_artist_id in zip(iter_names, iter_ids):
-        time.sleep(0.3)
-        related_artist_names, _ = search_related_artists(artist_id=reference_artist_id)
-        if len(related_artist_names) != 0:
-            artists.append([(reference_artist_name, related_artist_name) for related_artist_name in related_artist_names])
-    plot_network(artists)
-    
+        related_artist = {}
+        for artist in related_artist_search_results['artists']:
+            related_artist['name'] = artist['name']
+            related_artist['popularity'] = artist['popularity']
+            related_artist['genre'] = self._genres_to_value(artist['genres'])
+            related_artist['id'] = artist['id']
+            try:
+                related_artist['image'] = artist['images'][1]['url']
+            except IndexError:
+                related_artist['image'] = ''
+            related_artists['related'].append(deepcopy(related_artist))
+        return related_artists
+
+    def _genres_to_value(self, artist_genres):
+        if len(artist_genres) == 0:
+            return 0
+        else:
+            count_genres = {}
+            genre_values = []
+            artist_genres = ','.join(artist_genres).replace('-', ',').replace(' ', ',')
+            for genre, value in self.genres.items():
+                if artist_genres.count(genre):
+                    genre_value = artist_genres.count(genre) * value
+                    count_genres[genre] = artist_genres.count(genre)
+                    genre_values.append(genre_value)
+            try: 
+                return round(sum(genre_values) / sum(count_genres.values()), 2)
+            except ZeroDivisionError:
+                return 0
+
+    def get_genres(self):
+        return self.genres
+
+    def get_artists(self, source_artist_name):
+        '''
+        param:
+            source_artist_name: string
+        '''
+        artists = self._search_artist_from_name(source_artist_name)
+        return artists
+
+    def get_related_artists(self, source_artist_id):
+        '''
+        param:
+            source_artist_id: string
+        '''
+        artists = self._search_related_artists(source_artist_id)
+        return artists
+
