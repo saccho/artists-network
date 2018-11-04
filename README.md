@@ -1,29 +1,33 @@
-# Artists Network Web版 [TBD]
-アーティスト間の相関をネットワーク図でプロットします．
+# Artists Network API
+アーティスト間の関係をネットワーク図でプロットします．サーバサイドのプログラムです．
 
-任意のアーティストから，関連するアーティストがたくさん表示されます．
+アーティスト情報をjson形式で返します．
 
+Webページでは任意のアーティストから，関連するアーティストがたくさん表示されます．
+
+Webページの構想図
 ![結果](https://github.com/saccho/artists-network/blob/feature/web/static/img/example_2.png)
-
-Web公開に向けて開発中…
-
-## 表示例
-![sample](https://github.com/saccho/artists-network/blob/master/example_1.png)
 
 ## 準備
 [Spotify for Developers](https://developer.spotify.com/) のAPIを使用しています．
 
-conf/client.pyファイルを作成し，以下のパラメータを記述する．
+.envファイルを作成し，以下のパラメータを記述する(.env_sample参照)．
 
-```client.py
-client_id = '<YOUR CLIENT ID>'
-client_secret = '<YOUR CLIENT SECRET>'
+```.env
+CLIENT_ID = "<YOUR CLIENT ID>"
+CLIENT_SECRET = "<YOUR CLIENT SECRET>"
 ```
 
 ## 使用方法
 ```
 $ git clone https://github.com/saccho/artists-network
 $ cd artists-network
-$ python artists_network.py
+$ python app.py
 ```
-標準入力に任意のアーティスト名を入力する．複数ヒットした場合は，アーティストの選択肢が表示されるので，自分の意図したアーティストを選択することで，ネットワーク図がプロットされる．
+
+## ルーティング
+/genres => ジャンルと対応する値を返します．
+
+/source-artists/<artist_name> => artist_nameをSpotifyから検索し，ヒットしたアーティストの情報を返します．
+
+/related-artists/<artist_id> => artist_idに対応したアーティストの情報と，関連アーティストの情報を返します．
