@@ -6,7 +6,7 @@
 Webページでは任意のアーティストから，関連するアーティストがたくさん表示されます．
 
 Webページの構想図
-![結果](https://github.com/saccho/artists-network/blob/feature/web/static/img/example_2.png)
+![結果](https://github.com/saccho/artists-network/blob/master/static/img/example_2.png)
 
 ## 準備
 [Spotify for Developers](https://developer.spotify.com/) のAPIを使用しています．
