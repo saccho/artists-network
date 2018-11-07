@@ -12,9 +12,9 @@ an = ArtistsNetwork()
 def index():
     return 'artists-network-api'
 
-@app.route('/source-artists/<artist_name>', methods=['GET'])
-def search_source_artists(artist_name):
-    source_artist = jsonify(an.get_artists(artist_name))
+@app.route('/source-artists/<market>/<artist_name>', methods=['GET'])
+def search_source_artists(artist_name, market):
+    source_artist = jsonify(an.get_artists(artist_name, market))
     source_artist.status_code = 200
     return source_artist
 

@@ -17,25 +17,22 @@ class ArtistsNetwork():
                       'indie', 'pop', 'anime', 'idol', 'denpa', 'dance', 
                       'funk', 'hawaiian', 'jawaiian', 'shibuya', 'reggae', 
                       'r&b', 'fusion', 'city', 'jazz']
-        self.max_value = 240
-        self.min_value = 0.1
-        step = (self.max_value - self.min_value) / (len(genre_list) - 1)
-        value_list = [round(self.min_value + (i * step), 2) for i in range(len(genre_list))]
+        max_value = 240
+        min_value = 0.1
+        step = (max_value - min_value) / (len(genre_list) - 1)
+        value_list = [round(min_value + (i * step), 2) for i in range(len(genre_list))]
         for genre, value in zip(genre_list, value_list):
             self.genres[genre] = value
 
-    def _search_artist_from_name(self, source_artist_name):
+    def _search_artist_from_name(self, source_artist_name, market):
         artists = {
             'err_msg': '',
             'items': []
         }
-        for market in ['US', 'JP']:
-            artist_search_results = spotify.search(q=source_artist_name, market=market, type='artist')
-            if len(artist_search_results['artists']['items']) != 0:
-                break
-            else:
-                artists['err_msg'] = 'Artist not found'
-        if len(artists['err_msg']) != 0:
+        artist_search_results = spotify.search(q=source_artist_name, market=market,
+                                               type='artist', limit=15)
+        if len(artist_search_results['artists']['items']) == 0:
+            artists['err_msg'] = 'Artist not found'
             return artists
         else:
             pass
@@ -111,12 +108,12 @@ class ArtistsNetwork():
     def get_genres(self):
         return self.genres
 
-    def get_artists(self, source_artist_name):
+    def get_artists(self, source_artist_name, market):
         '''
         param:
             source_artist_name: string
         '''
-        artists = self._search_artist_from_name(source_artist_name)
+        artists = self._search_artist_from_name(source_artist_name, market)
         return artists
 
     def get_related_artists(self, source_artist_id):
@@ -126,4 +123,3 @@ class ArtistsNetwork():
         '''
         artists = self._search_related_artists(source_artist_id)
         return artists
-
