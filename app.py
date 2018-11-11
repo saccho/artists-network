@@ -14,15 +14,21 @@ def index():
 
 @app.route('/source-artists/<market>/<artist_name>', methods=['GET'])
 def search_source_artists(artist_name, market):
-    source_artist = jsonify(an.get_artists(artist_name, market))
+    source_artist = jsonify(an.search_artist_from_name(artist_name, market))
     source_artist.status_code = 200
     return source_artist
 
 @app.route('/related-artists/<artist_id>', methods=['GET'])
 def search_related_artists(artist_id):
-    related_artist = jsonify(an.get_related_artists(artist_id))
+    related_artist = jsonify(an.search_related_artists(artist_id))
     related_artist.status_code = 200
     return related_artist
+
+@app.route('/artist-albums/<artist_id>', methods=['GET'])
+def search_artist_albums(artist_id):
+    albums = jsonify(an.search_artist_albums(artist_id))
+    albums.status_code = 200
+    return albums
 
 @app.route('/genres', methods=['GET'])
 def genres():
